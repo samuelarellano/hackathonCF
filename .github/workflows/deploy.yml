@@ -1,4 +1,4 @@
-name: Deploy to Azure
+name: Deploy to Azure Container Apps
 
 on:
   push:
@@ -18,10 +18,13 @@ jobs:
       with:
         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-    - name: Build and Push Image to ACR
+    - name: Build and Push Docker Image
       run: |
-        az acr build --registry sammyacr --image sammycontainerapp:latest .
+        az acr build --registry ${{ secrets.AZURE_PREFIX }}acr --image ${{ secrets.AZURE_PREFIX }}containerapp:latest .
 
-    - name: Deploy to Azure Container Apps
+    - name: Deploy to Azure Container App
       run: |
-        az containerapp update --name sammycontainerapp --resource-group pets-workshop --image sammyacr.azurecr.io/sammycontainerapp:latest --environment sammycontainerappenvironment
+        az containerapp update \
+          --name ${{ secrets.AZURE_PREFIX }}containerapp \
+          --resource-group pets-workshop \
+          --image ${{ secrets.AZURE_PREFIX }}acr.azurecr.io/${{ secrets.AZURE_PREFIX }}containerapp:latest
